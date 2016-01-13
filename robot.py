@@ -26,6 +26,7 @@ from flask import request
 
 from bias_robot import BiasRobot
 from pico_robot import PICORobot
+from ct_robot import CTRobot
 
 def str2bool(v):
   return v.lower() in ("yes", "true", "t", "1")
@@ -46,6 +47,7 @@ bias_bot = BiasRobot()
 # bcw: slow, due to vectorizers... but only has
 # to happen at start-up, so...
 pico_bot = PICORobot()
+ct_bot = CTRobot()
 log.info("done loading models")
 
 @app.route('/')
@@ -75,9 +77,12 @@ def annotate():
     #
     annotations = bias_bot.annotate(json_data["text"])
     pico_annotations = pico_bot.annotate(json_data["text"])
+    ct_annotations = ct_bot.annotate(json_data["text"])
 
     # merge
     annotations['marginalia'].extend(pico_annotations['marginalia'])
+    annotations['marginalia'].extend(ct_annotations['marginalia'])
+
     return json.dumps(annotations)
 
 if __name__ == '__main__':
